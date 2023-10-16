@@ -3,6 +3,9 @@
 % Date: 2023-10-10
 % Description: PurdueX Introduction to Quantum Science & Technology Section D Notes and Homework Preamble
 % Author: Chevan Nanayakkara
+
+
+
 \documentclass[10pt,letterpaper]{article}
 \usepackage[left=0.5in,right=0.5in,top=0.5in,bottom=0.5in]{geometry}
 
@@ -64,6 +67,12 @@
   \prop_gput:Nnn \g_interludes_prop {#1} {#2}
 }
 
+% Command to add an annotation
+\NewDocumentCommand{\setslideannotation}{mm}
+{
+  \prop_gput:Nnn \g_slide_annotations_prop {#1} {#2}
+}
+
 % Command to annotate the PDF
 \NewDocumentCommand{\annotatepdf}{m}
 {
@@ -110,6 +119,7 @@
 
 
 
+
 \ExplSyntaxOff
 
 % Document metadata
@@ -123,6 +133,9 @@
 
 \thispagestyle{scrheadings}
 
+
+
+% End of preamble
 
 
 % End of preamble
