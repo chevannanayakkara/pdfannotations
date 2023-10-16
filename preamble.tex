@@ -1,10 +1,8 @@
 % LaTeX3, pdfLaTeX
-% Version: 1.1.0
+% Version: 1.2.0
 % Date: 2023-10-10
 % Description: PurdueX Introduction to Quantum Science & Technology Section D Notes and Homework Preamble
 % Author: Chevan Nanayakkara
-
-
 
 \documentclass[10pt,letterpaper]{article}
 \usepackage[left=0.5in,right=0.5in,top=0.5in,bottom=0.5in]{geometry}
@@ -44,8 +42,11 @@
 \ofoot{Page \pagemark} % Add page number to the right footer
 \ohead{\thetitle} % Add the document title to the right header
 
-
 \ExplSyntaxOn
+
+% Maximum number of interludes per slide
+\int_new:N \g_max_interludes_int
+\int_gset:Nn \g_max_interludes_int {5} % Example max set to 5, adjust as necessary
 
 % Sequences for storing filenames and their page counts
 \seq_new:N \g_pdf_files_seq
@@ -58,10 +59,11 @@
 % Property list for slide annotations
 \prop_new:N \g_slide_annotations_prop
 
-%Property list for slide interludes
+% Property list for slide interludes
 \prop_new:N \g_interludes_prop
 
 % Command to add an interlude
+% Format: \setinterludecontent{section-slide-interlude_number}{content}
 \NewDocumentCommand{\setinterludecontent}{mm}
 {
   \prop_gput:Nnn \g_interludes_prop {#1} {#2}
@@ -102,23 +104,23 @@
 
     \thispagestyle{scrheadings}
 
-    % Check for interlude and print if available
-    \prop_if_in:NnT \g_interludes_prop {#1-##1-interlude}
+    % Check for interludes and print if available
+    \int_step_inline:nn {\g_max_interludes_int}
     {
-      \clearpage
-      \begin{center}
-        \large 
-        \textbf{Interlude Location: \textcolor{red}{#1-##1-interlude}}
-      \end{center}
-      \vspace{1em}
-      \prop_item:Nn \g_interludes_prop {#1-##1-interlude}
-      \clearpage
+      \prop_if_in:NnT \g_interludes_prop {#1-##1-####1-interlude}
+      {
+        \clearpage
+        \begin{center}
+          \large 
+          \textbf{Interlude Location: \textcolor{red}{#1-##1-####1-interlude}}
+        \end{center}
+        \vspace{1em}
+        \prop_item:Nn \g_interludes_prop {#1-##1-####1-interlude}
+        \clearpage
+      }
     }
   }
 }
-
-
-
 
 \ExplSyntaxOff
 
@@ -132,10 +134,5 @@
 \makeatother
 
 \thispagestyle{scrheadings}
-
-
-
-% End of preamble
-
 
 % End of preamble
