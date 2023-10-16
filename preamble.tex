@@ -1,5 +1,5 @@
 % LaTeX3, pdfLaTeX
-% Version: 1.2.1
+% Version: 1.2.3
 % Date: 2023-10-10
 % Description: PurdueX Introduction to Quantum Science & Technology Section D Notes and Homework Preamble
 % Author: Chevan Nanayakkara
@@ -32,47 +32,44 @@
 \pagestyle{scrheadings}
 \clearpairofpagestyles
 
+\ExplSyntaxOn
+
+% Global variables and sequences
+
+% Maximum number of interludes per slide
+\int_new:N \g_max_interludes_int
+\int_gset:Nn \g_max_interludes_int {5}
+
 \newcounter{currentslide}
 \newcounter{totalpdfpages}
 \newcommand{\currentpdfname}{}
 
-% Command to set current PDF name
-\newcommand{\setcurrentpdfname}[1]{\renewcommand{\currentpdfname}{#1}}
-
-\ofoot{Page \pagemark} % Add page number to the right footer
-\ohead{\thetitle} % Add the document title to the right header
-
-\ExplSyntaxOn
-
-% Maximum number of interludes per slide
-\int_new:N \g_max_interludes_int
-\int_gset:Nn \g_max_interludes_int {5} % Example max set to 5, adjust as necessary
-
 % Sequences for storing filenames and their page counts
 \seq_new:N \g_pdf_files_seq
 \seq_new:N \g_pdf_pages_seq
-
-% Populate the sequences
 \seq_gset_from_clist:Nn \g_pdf_files_seq {PDF/Lecture_Notes_-_Section_D}
 \seq_gset_from_clist:Nn \g_pdf_pages_seq {116}
 
-% Property list for slide annotations
+% Property lists
 \prop_new:N \g_slide_annotations_prop
-
-% Property list for slide interludes
 \prop_new:N \g_interludes_prop
 
-% Command to add an interlude
-% Format: \setinterludecontent{section-slide-interlude_number}{content}
-\NewDocumentCommand{\setinterludecontent}{mm}
+% Command to set current PDF name
+\NewDocumentCommand{\setcurrentpdfname}{m}
 {
-  \prop_gput:Nnn \g_interludes_prop {#1} {#2}
+  \renewcommand{\currentpdfname}{#1}
 }
 
 % Command to add an annotation
 \NewDocumentCommand{\setslideannotation}{mm}
 {
   \prop_gput:Nnn \g_slide_annotations_prop {#1} {#2}
+}
+
+% Command to add an interlude
+\NewDocumentCommand{\setinterludecontent}{mm}
+{
+  \prop_gput:Nnn \g_interludes_prop {#1} {#2}
 }
 
 % Command to annotate the PDF
@@ -83,20 +80,20 @@
     \clearpage
     \setcounter{currentslide}{##1}
     \setcounter{totalpdfpages}{\seq_item:Nn \g_pdf_pages_seq {#1}}
-    \setcurrentpdfname{\seq_item:Nn \g_pdf_files_seq {#1}} % Set the current PDF name for the footer
+    \setcurrentpdfname{\seq_item:Nn \g_pdf_files_seq {#1}}
 
     % Slide
     \begin{center}
       \includegraphics[page=##1, width=\textwidth]{\seq_item:Nn \g_pdf_files_seq {#1}}
     \end{center}
 
-    \vspace{1em} % Space between slide and annotation
+    \vspace{1em}
 
-    % Annotation minipage
+    % Annotation
     \begin{center}
       \begin{minipage}{\textwidth}
           \large 
-          \textbf{Annotation\,for\,\textcolor{red}{Slide\,##1}\,of\,\arabic{totalpdfpages}:}
+          \textbf{Annotation\,for\,\textcolor{red}{Slide\,##1}\,of\,\arabic{totalpdfpages}:} \\
           \textit{\currentpdfname} \\
           \prop_item:Nn \g_slide_annotations_prop {#1-##1}
       \end{minipage}
@@ -104,7 +101,7 @@
 
     \thispagestyle{scrheadings}
 
-    % Check for interludes and print if available
+    % Interludes
     \int_step_inline:nn {\g_max_interludes_int}
     {
       \prop_if_in:NnT \g_interludes_prop {#1-##1-####1-interlude}
@@ -124,14 +121,16 @@
 
 \ExplSyntaxOff
 
+% Footer and header settings
+\ofoot{Page \pagemark}
+\ohead{\thetitle}
+
 % Document metadata
 \title{PurdueX Introduction to Quantum Science \& Technology Section D Notes and Homework}
 \author{Chevan Nanayakkara}
 \date{October 2023}
 
-\makeatletter
-\newcommand{\thetitle}{\@title}
-\makeatother
+\NewExpandableDocumentCommand{\thetitle}{}{\csuse{title}}
 
 \thispagestyle{scrheadings}
 
