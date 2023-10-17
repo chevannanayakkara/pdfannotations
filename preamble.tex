@@ -1,5 +1,5 @@
 % LaTeX3, pdfLaTeX
-% Version: 1.2.3
+% Version: 1.3
 % Date: 2023-10-10
 % Description: PurdueX Introduction to Quantum Science & Technology Section D Notes and Homework Preamble
 % Author: Chevan Nanayakkara
@@ -67,54 +67,62 @@
 }
 
 % Command to add an interlude
-\NewDocumentCommand{\setinterludecontent}{mm}
+\NewDocumentCommand{\slideinterlude}{mm}
 {
   \prop_gput:Nnn \g_interludes_prop {#1} {#2}
 }
 
-% Command to annotate the PDF
-\NewDocumentCommand{\annotatepdf}{m}
-{
-  \int_step_inline:nnnn {1} {1} {\seq_item:Nn \g_pdf_pages_seq {#1}}
-  {
-    \clearpage
-    \setcounter{currentslide}{##1}
-    \setcounter{totalpdfpages}{\seq_item:Nn \g_pdf_pages_seq {#1}}
-    \setcurrentpdfname{\seq_item:Nn \g_pdf_files_seq {#1}}
-
+% Modular functions for rendering slide, annotation, and interludes
+\cs_new_protected:Nn \__purdue_render_slide:nn {
     % Slide
     \begin{center}
-      \includegraphics[page=##1, width=\textwidth]{\seq_item:Nn \g_pdf_files_seq {#1}}
+      \includegraphics[page=#1, width=\textwidth]{\currentpdfname}
     \end{center}
-
-    \vspace{1em}
 
     % Annotation
     \begin{center}
       \begin{minipage}{\textwidth}
           \large 
-          \textbf{Annotation\,for\,\textcolor{red}{Slide\,##1}\,of\,\arabic{totalpdfpages}:} \\
+          \textbf{Annotation\,for\,\textcolor{red}{Slide\,#1}\,of\,\arabic{totalpdfpages}:} \\
           \textit{\currentpdfname} \\
-          \prop_item:Nn \g_slide_annotations_prop {#1-##1}
+          \prop_item:Nn \g_slide_annotations_prop {#2-#1}
       \end{minipage}
     \end{center}
+}
+
+\cs_new_protected:Nn \__purdue_render_interlude:nn {
+    % Interlude
+    \prop_if_in:NnT \g_interludes_prop {#1-#2}
+    {
+      \clearpage
+      \begin{center}
+        \large 
+        \textbf{Interlude\,Location:\, \textcolor{red}{#1-#2}}
+      \end{center}
+      \vspace{1em}
+      \prop_item:Nn \g_interludes_prop {#1-#2}
+      \clearpage
+    }
+}
+
+% Command to annotate the PDF
+\NewDocumentCommand{\annotatepdf}{m}
+{
+  \setcounter{totalpdfpages}{\seq_item:Nn \g_pdf_pages_seq {#1}}
+  \setcurrentpdfname{\seq_item:Nn \g_pdf_files_seq {#1}}
+
+  \int_step_inline:nn {\seq_item:Nn \g_pdf_pages_seq {#1}}
+  {
+    \clearpage
+    \setcounter{currentslide}{##1}
+    \__purdue_render_slide:nn {##1} {#1}
 
     \thispagestyle{scrheadings}
 
     % Interludes
     \int_step_inline:nn {\g_max_interludes_int}
     {
-      \prop_if_in:NnT \g_interludes_prop {#1-##1-####1-interlude}
-      {
-        \clearpage
-        \begin{center}
-          \large 
-          \textbf{Interlude\,Location:\, \textcolor{red}{#1-##1-####1-interlude}}
-        \end{center}
-        \vspace{1em}
-        \prop_item:Nn \g_interludes_prop {#1-##1-####1-interlude}
-        \clearpage
-      }
+      \__purdue_render_interlude:nn {#1-##1} {####1}
     }
   }
 }
