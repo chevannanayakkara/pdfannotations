@@ -1,5 +1,5 @@
 % LaTeX3, pdfLaTeX
-% Version: 1.3.1
+% Version: 1.3.4
 % Date: 2023-10-10
 % Description: PurdueX Introduction to Quantum Science & Technology Section D Notes and Homework Preamble
 % Author: Chevan Nanayakkara
@@ -35,8 +35,6 @@
 \ExplSyntaxOn
 
 % Global variables and sequences
-
-% Maximum number of interludes per slide
 \int_new:N \g_max_interludes_int
 \int_gset:Nn \g_max_interludes_int {5}
 
@@ -44,42 +42,35 @@
 \newcounter{totalpdfpages}
 \newcommand{\currentpdfname}{}
 
-% Sequences for storing filenames and their page counts
 \seq_new:N \g_pdf_files_seq
 \seq_new:N \g_pdf_pages_seq
 \seq_gset_from_clist:Nn \g_pdf_files_seq {PDF/Lecture_Notes_-_Section_D}
 \seq_gset_from_clist:Nn \g_pdf_pages_seq {116}
 
-% Property lists
 \prop_new:N \g_slide_annotations_prop
 \prop_new:N \g_interludes_prop
 
-% Command to set current PDF name
 \NewDocumentCommand{\setcurrentpdfname}{m}
 {
   \renewcommand{\currentpdfname}{#1}
 }
 
-% Command to add an annotation
 \NewDocumentCommand{\slideannotation}{mm}
 {
   \prop_gput:Nnn \g_slide_annotations_prop {#1} {#2}
 }
 
-% Command to add an interlude
 \NewDocumentCommand{\slideinterlude}{mm}
 {
   \prop_gput:Nnn \g_interludes_prop {#1} {#2}
 }
 
-% Modular functions for rendering slide, annotation, and interludes
-\cs_new_protected:Nn \__purdue_render_slide:nn {
-    % Slide
+\cs_new_protected:Nn \__render_slide:nn {
     \begin{center}
       \includegraphics[page=#1, width=\textwidth]{\currentpdfname}
     \end{center}
+    \thispagestyle{scrheadings}
 
-    % Annotation
     \begin{center}
       \begin{minipage}{\textwidth}
           \large 
@@ -88,10 +79,10 @@
           \prop_item:Nn \g_slide_annotations_prop {#2-#1}
       \end{minipage}
     \end{center}
+    \thispagestyle{scrheadings}
 }
 
-\cs_new_protected:Nn \__purdue_render_interlude:nn {
-    % Interlude
+\cs_new_protected:Nn \__render_interlude:nn {
     \prop_if_in:NnT \g_interludes_prop {#1-#2}
     {
       \clearpage
@@ -101,11 +92,10 @@
       \end{center}
       \vspace{1em}
       \prop_item:Nn \g_interludes_prop {#1-#2}
-      \clearpage
+      \thispagestyle{scrheadings}
     }
 }
 
-% Command to annotate the PDF
 \NewDocumentCommand{\annotatepdf}{m}
 {
   \setcounter{totalpdfpages}{\seq_item:Nn \g_pdf_pages_seq {#1}}
@@ -115,31 +105,27 @@
   {
     \clearpage
     \setcounter{currentslide}{##1}
-    \__purdue_render_slide:nn {##1} {#1}
-
+    \__render_slide:nn {##1} {#1}
     \thispagestyle{scrheadings}
 
     % Interludes
     \int_step_inline:nn {\g_max_interludes_int}
     {
-      \__purdue_render_interlude:nn {#1-##1} {####1}
+      \__render_interlude:nn {#1-##1} {####1}
     }
   }
 }
 
 \ExplSyntaxOff
 
-% Footer and header settings
 \ofoot{Page \pagemark}
 \ohead{\thetitle}
 
-% Document metadata
-\title{PurdueX Introduction to Quantum Science \& Technology Section D Notes and Homework}
+\title{Introduction to Quantum Science \& Technology Section D Notes and Homework}
 \author{Chevan Nanayakkara}
 \date{October 2023}
 
 \NewExpandableDocumentCommand{\thetitle}{}{\csuse{title}}
-
 \thispagestyle{scrheadings}
 
 % End of preamble
