@@ -1,13 +1,17 @@
-% Version: 1.6
-% Date: 2023-10-21
+% Version: 1.7
+% Date: 2023-10-22
 % Description: PurdueX Introduction to Quantum Science & Technology Section C Notes and Homework Preamble
 % Author: Chevan Nanayakkara
 % Changelog:
+% - Version 1.7:
+%   - Added auto-detection of the number of pages in PDFs.
 % - Version 1.6:
 %   - Grouped user-specified variables.
 %   - Cleaned up code and eliminated redundant elements.
 % - Version 1.5:
 %   - Converted \begin{slideannotate} command to slideannotate environment.
+
+
 
 \documentclass[10pt,letterpaper]{article}
 \usepackage[left=0.5in,right=0.5in,top=0.5in,bottom=0.5in]{geometry}
@@ -46,8 +50,7 @@
 \int_gset:Nn \g_max_interludes_int {5}
 \seq_new:N \g_pdf_files_seq
 \seq_new:N \g_pdf_pages_seq
-\seq_gset_from_clist:Nn \g_pdf_files_seq {PDF/Lecture_Notes-Section_C}
-\seq_gset_from_clist:Nn \g_pdf_pages_seq {95}
+\seq_gset_from_clist:Nn \g_pdf_files_seq {PDF/Lecture_Notes-Section_C.pdf}
 
 % Internal counters, properties, and tokens
 \newcounter{currentslide}
@@ -57,6 +60,17 @@
 \prop_new:N \g_interludes_prop
 \tl_new:N \l_slideinterlude_content_tl
 \tl_new:N \l_slideannotate_content_tl
+
+% Auto-detection of the number of pages in PDFs
+\cs_new:Nn \__get_pdf_pages:n
+{
+  \pdfximage{#1}
+  \seq_gput_right:Nx \g_pdf_pages_seq {\the\pdflastximagepages}
+}
+\seq_map_inline:Nn \g_pdf_files_seq
+{
+  \__get_pdf_pages:n {#1}
+}
 
 
 \NewDocumentCommand{\setcurrentpdfname}{m}
