@@ -1,12 +1,11 @@
 % LaTeX3, pdfLaTeX
-% Version: 1.4
+% Version: 1.5
 % Date: 2023-10-21
 % Description: PurdueX Introduction to Quantum Science & Technology Section C Notes and Homework Preamble
 % Author: Chevan Nanayakkara
 % Changelog:
-% - Converted \slideinterlude from command to environment.
-% - Enhanced the environment to accept complex content.
-% - Code refactoring and modularization.
+% - Version 1.5:
+%   - Converted \begin{slideannotate} command to slideannotate environment.
 
 \documentclass[10pt,letterpaper]{article}
 \usepackage[left=0.5in,right=0.5in,top=0.5in,bottom=0.5in]{geometry}
@@ -53,16 +52,20 @@
 \prop_new:N \g_slide_annotations_prop
 \prop_new:N \g_interludes_prop
 \tl_new:N \l_slideinterlude_content_tl % renamed from \l_tmpa_tl to avoid conflict
+\tl_new:N \l_slideannotate_content_tl % for storing the content of slideannotate
+
 
 \NewDocumentCommand{\setcurrentpdfname}{m}
 {
   \renewcommand{\currentpdfname}{#1}
 }
 
-\NewDocumentCommand{\slideannotation}{mm}
-{
-  \prop_gput:Nnn \g_slide_annotations_prop {#1} {#2}
-}
+\NewDocumentEnvironment{slideannotate}{m +b}
+ {
+  \tl_set:Nn \l_slideannotate_content_tl {#2}
+  \prop_gput:NnV \g_slide_annotations_prop {#1} \l_slideannotate_content_tl
+ }
+ {}
 
 \NewDocumentEnvironment{slideinterlude}{m +b}
  {
