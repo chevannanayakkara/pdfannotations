@@ -4,23 +4,13 @@
 % Author: Chevan Nanayakkara
 % Changelog:
 % - Version 1.6:
-%   - Moved user-specific configuration to the top of the preamble for easier modification.
+%   - Grouped user-specified variables.
+%   - Cleaned up code and eliminated redundant elements.
+% - Version 1.5:
+%   - Converted \begin{slideannotate} command to slideannotate environment.
 
 \documentclass[10pt,letterpaper]{article}
 \usepackage[left=0.5in,right=0.5in,top=0.5in,bottom=0.5in]{geometry}
-
-% ====================
-% User Configuration
-% ====================
-% Maximum number of interludes
-\newcommand{\maxinterludes}{5}
-% Sequence of PDF files
-\newcommand{\pdffiles}{PDF/Lecture_Notes-Section_C}
-% Number of pages for each PDF
-\newcommand{\pdfpages}{95}
-% ====================
-% End of User Configuration
-% ====================
 
 % Graphics and design
 \usepackage{graphicx}
@@ -51,20 +41,22 @@
 
 \ExplSyntaxOn
 
-% Global variables and sequences
+% User-specified variables and sequences
 \int_new:N \g_max_interludes_int
 \int_gset:Nn \g_max_interludes_int {5}
-\newcounter{currentslide}
-\newcounter{totalpdfpages}
-\newcommand{\currentpdfname}{}
 \seq_new:N \g_pdf_files_seq
 \seq_new:N \g_pdf_pages_seq
 \seq_gset_from_clist:Nn \g_pdf_files_seq {PDF/Lecture_Notes-Section_C}
 \seq_gset_from_clist:Nn \g_pdf_pages_seq {95}
+
+% Internal counters, properties, and tokens
+\newcounter{currentslide}
+\newcounter{totalpdfpages}
+\newcommand{\currentpdfname}{}
 \prop_new:N \g_slide_annotations_prop
 \prop_new:N \g_interludes_prop
-\tl_new:N \l_slideinterlude_content_tl % renamed from \l_tmpa_tl to avoid conflict
-\tl_new:N \l_slideannotate_content_tl % for storing the content of slideannotate
+\tl_new:N \l_slideinterlude_content_tl
+\tl_new:N \l_slideannotate_content_tl
 
 
 \NewDocumentCommand{\setcurrentpdfname}{m}
