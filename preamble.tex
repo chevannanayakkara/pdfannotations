@@ -1,14 +1,26 @@
-% LaTeX3, pdfLaTeX
-% Version: 1.5
+% Version: 1.6
 % Date: 2023-10-21
 % Description: PurdueX Introduction to Quantum Science & Technology Section C Notes and Homework Preamble
 % Author: Chevan Nanayakkara
 % Changelog:
-% - Version 1.5:
-%   - Converted \begin{slideannotate} command to slideannotate environment.
+% - Version 1.6:
+%   - Moved user-specific configuration to the top of the preamble for easier modification.
 
 \documentclass[10pt,letterpaper]{article}
 \usepackage[left=0.5in,right=0.5in,top=0.5in,bottom=0.5in]{geometry}
+
+% ====================
+% User Configuration
+% ====================
+% Maximum number of interludes
+\newcommand{\maxinterludes}{5}
+% Sequence of PDF files
+\newcommand{\pdffiles}{PDF/Lecture_Notes-Section_C}
+% Number of pages for each PDF
+\newcommand{\pdfpages}{95}
+% ====================
+% End of User Configuration
+% ====================
 
 % Graphics and design
 \usepackage{graphicx}
