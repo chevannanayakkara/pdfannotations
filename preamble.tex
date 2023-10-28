@@ -1,8 +1,13 @@
-% Version: 1.7
-% Date: 2023-10-22
-% Description: PurdueX Introduction to Quantum Science & Technology Section C Notes and Homework Preamble
+% LaTeX3, pdfLaTeX
+% Version: 1.8
+% Date: 2023-10-23
+% Description: Notes and Annotations for PDFs for pdfLaTeX
 % Author: Chevan Nanayakkara
 % Changelog:
+% - Version 1.8:
+%   - Introduced \labelgraphics to auto-display image filename below the image.
+% - Version 1.7.1:
+%   - Changed interlude slide labels to: "Slide Interlude"
 % - Version 1.7:
 %   - Added auto-detection of the number of pages in PDFs.
 % - Version 1.6:
@@ -72,6 +77,15 @@
   \__get_pdf_pages:n {#1}
 }
 
+% Define a new command to include graphics with filename label
+\NewDocumentCommand{\labelgraphics}{O{} m}
+{
+  \includegraphics[#1]{#2}
+  \par
+  \centering
+  \small\ttfamily\detokenize{#2}
+}
+
 
 \NewDocumentCommand{\setcurrentpdfname}{m}
 {
@@ -125,12 +139,13 @@
     \clearpage
     \begin{center}
       \large
-      \textbf{Interlude~Location:~\textcolor{red}{#1-#2}}
+      \textbf{Slide~Interlude:~\textcolor{red}{#1-#2}}
     \end{center}
     \vspace{1em}
     \prop_item:Nn \g_interludes_prop {#1-#2}
   }
 }
+
 
 \NewDocumentCommand{\annotatepdf}{m}
 {
@@ -172,7 +187,7 @@
 \ofoot{Page \pagemark}
 \ohead{\thetitle}
 
-\title{Introduction to Quantum Science \& Technology Section C Notes and Homework}
+\title{Introduction to Quantum Science \& Technology Section E Notes and Homework}
 \author{Chevan Nanayakkara}
 \date{October 2023}
 
