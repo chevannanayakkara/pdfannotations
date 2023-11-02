@@ -1,9 +1,13 @@
 % LaTeX3, pdfLaTeX
-% Version: 1.8
-% Date: 2023-10-23
+% Version: 1.9.1
+% Date: 2023-10-24
 % Description: Notes and Annotations for PDFs for pdfLaTeX
 % Author: Chevan Nanayakkara
 % Changelog:
+% - Version 1.9.1:
+%   - Fixed a bug in \labelgraphics where the interlude format was not preserved
+% - Version 1.9:
+%   - Introduced \suppressslide{x-y} command to exclude specific slides from being displayed.
 % - Version 1.8:
 %   - Introduced \labelgraphics to auto-display image filename below the image.
 % - Version 1.7.1:
@@ -55,7 +59,7 @@
 \int_gset:Nn \g_max_interludes_int {5}
 \seq_new:N \g_pdf_files_seq
 \seq_new:N \g_pdf_pages_seq
-\seq_gset_from_clist:Nn \g_pdf_files_seq {PDF/Lecture_Notes-Section_C.pdf}
+\seq_gset_from_clist:Nn \g_pdf_files_seq {W2_L1_V0_Intro.pdf, W2_L2_V0_Intro.pdf, UNIX_Course_Slides.pdf}
 
 % Internal counters, properties, and tokens
 \newcounter{currentslide}
@@ -65,6 +69,8 @@
 \prop_new:N \g_interludes_prop
 \tl_new:N \l_slideinterlude_content_tl
 \tl_new:N \l_slideannotate_content_tl
+\prop_new:N \g_suppressed_slides_prop % Property to store suppressed slides
+
 
 % Auto-detection of the number of pages in PDFs
 \cs_new:Nn \__get_pdf_pages:n
@@ -80,10 +86,15 @@
 % Define a new command to include graphics with filename label
 \NewDocumentCommand{\labelgraphics}{O{} m}
 {
-  \includegraphics[#1]{#2}
+  \begin{center}
+    \includegraphics[#1]{#2}
+  \end{center}
   \par
-  \centering
-  \small\ttfamily\detokenize{#2}
+  \begin{center}
+    \begingroup
+      \small\ttfamily\detokenize{#2}
+    \endgroup
+  \end{center}
 }
 
 
@@ -113,12 +124,15 @@
   \__render_annotation:nn {#1} {#2}
 }
 
+% We need a new counter for the current PDF index
+\newcounter{currentpdfindex}
+
 \cs_new_protected:Nn \__render_annotation:nn
 {
   \begin{center}
     \begin{minipage}{\textwidth}
       \large
-      \textbf{Annotation~for~\textcolor{red}{Slide~#1}~of~\arabic{totalpdfpages}:}
+      \textbf{Annotation~for~\textcolor{red}{Slide~#1}~of~\arabic{totalpdfpages}~of~\arabic{currentpdfindex}:} % Modified here
       \textit{\currentpdfname}
       \prop_item:Nn \g_slide_annotations_prop {#2-#1}
     \end{minipage}
@@ -147,22 +161,31 @@
 }
 
 
+\NewDocumentCommand{\suppressslide}{m}
+{
+  \prop_gput:Nnn \g_suppressed_slides_prop {#1} {suppressed}
+}
+
 \NewDocumentCommand{\annotatepdf}{m}
 {
+  \setcounter{currentpdfindex}{#1} % Set the current PDF index
   \setcounter{totalpdfpages}{\seq_item:Nn \g_pdf_pages_seq {#1}}
   \setcurrentpdfname{\seq_item:Nn \g_pdf_files_seq {#1}}
 
   \int_step_inline:nn {\seq_item:Nn \g_pdf_pages_seq {#1}}
   {
-    \clearpage
-    \setcounter{currentslide}{##1}
-    \__render_slide:nn {##1} {#1}
-    \thispagestyle{scrheadings}
-
-    % Check for interludes
-    \prop_if_in:NnT \g_interludes_prop {#1-##1}
+    \prop_if_in:NnF \g_suppressed_slides_prop {#1-##1} % Check if slide is not suppressed
     {
-      \__render_interlude:nn {#1} {##1}
+      \clearpage
+      \setcounter{currentslide}{##1}
+      \__render_slide:nn {##1} {#1}
+      \thispagestyle{scrheadings}
+
+      % Check for interludes
+      \prop_if_in:NnT \g_interludes_prop {#1-##1}
+      {
+        \__render_interlude:nn {#1} {##1}
+      }
     }
   }
 }
@@ -187,7 +210,7 @@
 \ofoot{Page \pagemark}
 \ohead{\thetitle}
 
-\title{Introduction to Quantum Science \& Technology Section E Notes and Homework}
+\title{UC San DiegoX Python for Data Science, Week 2: (Optional) Background in Python and Unix}
 \author{Chevan Nanayakkara}
 \date{October 2023}
 
