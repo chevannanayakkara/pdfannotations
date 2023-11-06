@@ -1,7 +1,11 @@
 % LaTeX3, pdfLaTeX
-% Version: 2.1
-% Date: 2023-11-05
+% Version: 2.2
+% Date: 2023-11-06
 % Changelog:
+% - Version 2.2:
+%   - Moved title, author, and date to user-specified variables.
+%   - Ensured that full text is used without stripping spaces.
+%   - Reorganized the code and added comments to sections for clarity
 % - Version 2.1:
 %   - Added syntax highlighting and line numbers for included Python code blocks.
 %   - Language formatting is auto-detected by the included file's extension.
@@ -23,8 +27,25 @@
 % - Version 1.5:
 %   - Converted \begin{slideannotate} command to slideannotate environment.
 
+% User configuration section
+% --------------------------
+% Document metadata
+\newcommand{\MyTitle}{UC San DiegoX Python for Data Science, Week 4: Pandas}
+\newcommand{\MyAuthor}{Chevan Nanayakkara}
+\newcommand{\MyDate}{November 2023}
+
+% User variables
 
 
+
+% Define expandable commands for title, author, and date to use in headers/footers
+\NewExpandableDocumentCommand{\thetitle}{}{\MyTitle}
+\NewExpandableDocumentCommand{\theauthor}{}{\MyAuthor}
+\NewExpandableDocumentCommand{\thedate}{}{\MyDate}
+
+
+
+% Document class and packages
 \documentclass[10pt,letterpaper]{article}
 \usepackage[left=0.5in,right=0.5in,top=0.5in,bottom=0.5in]{geometry}
 
@@ -83,17 +104,25 @@
 \usepackage{pdfpages}
 
 % Define page style
-\pagestyle{scrheadings}
-\clearpairofpagestyles
+% Set the document metadata using the user-specified variables
+\title{\MyTitle}
+\author{\MyAuthor}
+\date{\MyDate}
 
+% Page style settings
+\pagestyle{scrheadings}
+\clearpairofpagestyles % Clear header and footer
+\ifoot{\MyTitle} % Set document name in the footer on the left
+\ofoot{\thepage} % Set page number in the footer on the right
+
+% LaTeX3 programming and syntax
 \ExplSyntaxOn
 
 % User-specified variables and sequences
 \int_new:N \g_max_interludes_int
 \int_gset:Nn \g_max_interludes_int {5}
 \seq_new:N \g_pdf_files_seq
-\seq_new:N \g_pdf_pages_seq
-\seq_gset_from_clist:Nn \g_pdf_files_seq {Pandas_Course_Slides.pdf,Introduction_to_Pandas_Jupyter_Notebook.pdf}
+\seq_gset_from_clist:Nn \g_pdf_files_seq {W3_L1_V1_why_jupyter.pdf,W3_L2_V1_why_numpy.pdf,UNIX-Jupyter-Notebook-Example.pdf,03_Numpy_Notebook.pdf,Satellite_Image_Analysis_using_numpy.pdf}
 
 % Internal counters, properties, and tokens
 \newcounter{currentslide}
@@ -104,6 +133,7 @@
 \tl_new:N \l_slideinterlude_content_tl
 \tl_new:N \l_slideannotate_content_tl
 \prop_new:N \g_suppressed_slides_prop % Property to store suppressed slides
+\seq_new:N \g_pdf_pages_seq % Creates a global sequence to hold items which store the number of pages of different PDF documents included in the LaTeX document
 
 
 % Auto-detection and handling for different languages based on file extension
@@ -194,7 +224,7 @@
 {
   \prop_if_in:NnT \g_interludes_prop {#1-#2}
   {
-    \clearpage
+    \clearpage  % Ensures the interlude starts on a fresh page
     \begin{center}
       \large
       \textbf{Slide~Interlude:~\textcolor{red}{#1-#2}}
@@ -220,7 +250,7 @@
   {
     \prop_if_in:NnF \g_suppressed_slides_prop {#1-##1} % Check if slide is not suppressed
     {
-      \clearpage
+%      \clearpage % Ensure the inserted PDF starts on a fresh page
       \setcounter{currentslide}{##1}
       \__render_slide:nn {##1} {#1}
       \thispagestyle{scrheadings}
@@ -251,14 +281,8 @@
 
 \ExplSyntaxOff
 
-\ofoot{Page \pagemark}
-\ohead{\thetitle}
 
-\title{UC San DiegoX Python for Data Science, Week 4: Pandas}
-\author{Chevan Nanayakkara}
-\date{November 2023}
-
-\NewExpandableDocumentCommand{\thetitle}{}{\csuse{title}}
+% End of preamble
 \thispagestyle{scrheadings}
 
 % End of preamble
