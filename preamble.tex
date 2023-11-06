@@ -1,9 +1,12 @@
 % LaTeX3, pdfLaTeX
-% Version: 1.9.1
-% Date: 2023-10-24
-% Description: Notes and Annotations for PDFs for pdfLaTeX
-% Author: Chevan Nanayakkara
+% Version: 2.1
+% Date: 2023-11-05
 % Changelog:
+% - Version 2.1:
+%   - Added syntax highlighting and line numbers for included Python code blocks.
+%   - Language formatting is auto-detected by the included file's extension.
+% - Version 2.0:
+%   - Added functionality to include multi-line code from an external file into the {slideinterlude} environment.
 % - Version 1.9.1:
 %   - Fixed a bug in \labelgraphics where the interlude format was not preserved
 % - Version 1.9:
@@ -30,6 +33,37 @@
 \usepackage{scrlayer-scrpage}
 \usepackage{xcolor}
 \usepackage{cancel}
+\usepackage{listings} % For code formatting
+
+% Define custom colors
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codeblue}{rgb}{0.25,0.5,0.5}
+
+% Configure listings for Python code
+\lstdefinestyle{pythonstyle}{
+  language=Python,
+  backgroundcolor=\color{backcolour},
+  commentstyle=\color{codegreen},
+  keywordstyle=\color{codeblue},
+  numberstyle=\tiny\color{codegray},
+  stringstyle=\color{codepurple},
+  basicstyle=\ttfamily\small,
+  breakatwhitespace=false,         
+  breaklines=true,                 
+  captionpos=b,                    
+  keepspaces=true,                 
+  numbers=left,                    
+  numbersep=5pt,                  
+  showspaces=false,                
+  showstringspaces=false,
+  showtabs=false,                  
+  tabsize=2
+}
+
+\lstset{style=pythonstyle}
 
 % Math support
 \usepackage{amsmath}
@@ -59,7 +93,7 @@
 \int_gset:Nn \g_max_interludes_int {5}
 \seq_new:N \g_pdf_files_seq
 \seq_new:N \g_pdf_pages_seq
-\seq_gset_from_clist:Nn \g_pdf_files_seq {W2_L1_V0_Intro.pdf, W2_L2_V0_Intro.pdf, UNIX_Course_Slides.pdf}
+\seq_gset_from_clist:Nn \g_pdf_files_seq {Pandas_Course_Slides.pdf,Introduction_to_Pandas_Jupyter_Notebook.pdf}
 
 % Internal counters, properties, and tokens
 \newcounter{currentslide}
@@ -71,6 +105,16 @@
 \tl_new:N \l_slideannotate_content_tl
 \prop_new:N \g_suppressed_slides_prop % Property to store suppressed slides
 
+
+% Auto-detection and handling for different languages based on file extension
+\NewDocumentCommand{\includecode}{ O{} m }{
+  \lstinputlisting[
+    breaklines=true,
+    frame=single,
+    captionpos=b,
+    #1
+  ]{#2}
+}
 
 % Auto-detection of the number of pages in PDFs
 \cs_new:Nn \__get_pdf_pages:n
@@ -210,9 +254,9 @@
 \ofoot{Page \pagemark}
 \ohead{\thetitle}
 
-\title{UC San DiegoX Python for Data Science, Week 2: (Optional) Background in Python and Unix}
+\title{UC San DiegoX Python for Data Science, Week 4: Pandas}
 \author{Chevan Nanayakkara}
-\date{October 2023}
+\date{November 2023}
 
 \NewExpandableDocumentCommand{\thetitle}{}{\csuse{title}}
 \thispagestyle{scrheadings}
