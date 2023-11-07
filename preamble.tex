@@ -1,31 +1,6 @@
 % LaTeX3, pdfLaTeX
-% Version: 2.2
-% Date: 2023-11-06
-% Changelog:
-% - Version 2.2:
-%   - Moved title, author, and date to user-specified variables.
-%   - Ensured that full text is used without stripping spaces.
-%   - Reorganized the code and added comments to sections for clarity
-% - Version 2.1:
-%   - Added syntax highlighting and line numbers for included Python code blocks.
-%   - Language formatting is auto-detected by the included file's extension.
-% - Version 2.0:
-%   - Added functionality to include multi-line code from an external file into the {slideinterlude} environment.
-% - Version 1.9.1:
-%   - Fixed a bug in \labelgraphics where the interlude format was not preserved
-% - Version 1.9:
-%   - Introduced \suppressslide{x-y} command to exclude specific slides from being displayed.
-% - Version 1.8:
-%   - Introduced \labelgraphics to auto-display image filename below the image.
-% - Version 1.7.1:
-%   - Changed interlude slide labels to: "Slide Interlude"
-% - Version 1.7:
-%   - Added auto-detection of the number of pages in PDFs.
-% - Version 1.6:
-%   - Grouped user-specified variables.
-%   - Cleaned up code and eliminated redundant elements.
-% - Version 1.5:
-%   - Converted \begin{slideannotate} command to slideannotate environment.
+% Version: 2.2.2
+% Date: 2023-11-07
 
 % User configuration section
 % --------------------------
@@ -122,7 +97,7 @@
 \int_new:N \g_max_interludes_int
 \int_gset:Nn \g_max_interludes_int {5}
 \seq_new:N \g_pdf_files_seq
-\seq_gset_from_clist:Nn \g_pdf_files_seq {W3_L1_V1_why_jupyter.pdf,W3_L2_V1_why_numpy.pdf,UNIX-Jupyter-Notebook-Example.pdf,03_Numpy_Notebook.pdf,Satellite_Image_Analysis_using_numpy.pdf}
+\seq_gset_from_clist:Nn \g_pdf_files_seq {Pandas_Course_Slides.pdf,Introduction_to_Pandas_Jupyter_Notebook.pdf}
 
 % Internal counters, properties, and tokens
 \newcounter{currentslide}
@@ -224,13 +199,14 @@
 {
   \prop_if_in:NnT \g_interludes_prop {#1-#2}
   {
-    \clearpage  % Ensures the interlude starts on a fresh page
+    \clearpage % Clear the page before starting the interlude
     \begin{center}
       \large
       \textbf{Slide~Interlude:~\textcolor{red}{#1-#2}}
     \end{center}
     \vspace{1em}
     \prop_item:Nn \g_interludes_prop {#1-#2}
+    \clearpage  % Clear the page after the interlude content
   }
 }
 
@@ -283,7 +259,3 @@
 
 
 % End of preamble
-\thispagestyle{scrheadings}
-
-% End of preamble
-
