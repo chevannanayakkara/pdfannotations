@@ -1,16 +1,17 @@
 % LaTeX3, pdfLaTeX
-% Version: 2.2.2
-% Date: 2023-11-07
+% Version: 2.2.5
+% Date: 2023-11-10
+
+
 
 % User configuration section
 % --------------------------
 % Document metadata
-\newcommand{\MyTitle}{UC San DiegoX Python for Data Science, Week 4: Pandas}
-\newcommand{\MyAuthor}{Chevan Nanayakkara}
-\newcommand{\MyDate}{November 2023}
+\newcommand{\MyTitle}{}
+\newcommand{\MyAuthor}{}
+\newcommand{\MyDate}{}
 
 % User variables
-
 
 
 % Define expandable commands for title, author, and date to use in headers/footers
@@ -28,8 +29,13 @@
 \usepackage{graphicx}
 \usepackage{scrlayer-scrpage}
 \usepackage{xcolor}
-\usepackage{cancel}
+%\usepackage{cancel}
+%\usepackage{booktabs} % For professional looking tables and \toprule, \midrule, \bottomrule
+%\usepackage{array} % For wrapping text in cells
+%\usepackage{longtable} % For multi-page tables
 \usepackage{listings} % For code formatting
+\usepackage{seqsplit} % Include the seqsplit package
+
 
 % Define custom colors
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -64,8 +70,9 @@
 % Math support
 \usepackage{amsmath}
 \usepackage{amsfonts}
-\usepackage{amssymb}
-\usepackage{mathrsfs}
+\usepackage{amssymb} % for \mathbb and \nmid
+%\usepackage{mathrsfs}
+%\usepackage{mathtools} % for \prescript
 
 % List support
 \usepackage{enumitem}
@@ -97,7 +104,7 @@
 \int_new:N \g_max_interludes_int
 \int_gset:Nn \g_max_interludes_int {5}
 \seq_new:N \g_pdf_files_seq
-\seq_gset_from_clist:Nn \g_pdf_files_seq {Pandas_Course_Slides.pdf,Introduction_to_Pandas_Jupyter_Notebook.pdf}
+\seq_gset_from_clist:Nn \g_pdf_files_seq {3.1_Counting.pdf}
 
 % Internal counters, properties, and tokens
 \newcounter{currentslide}
@@ -185,6 +192,7 @@
       \textit{\currentpdfname}
       \prop_item:Nn \g_slide_annotations_prop {#2-#1}
     \end{minipage}
+    \clearpage  % Clear the page after the interlude content
   \end{center}
 }
 
@@ -259,3 +267,23 @@
 
 
 % End of preamble
+
+
+\begin{document}
+
+\renewcommand{\labelitemii}{$\square$} % Changes second-level bullet to a square
+\renewcommand{\labelitemiii}{$\ast$}  % Changes third-level bullet to an asterisk
+
+\pagestyle{empty}
+
+\maketitle
+\setcounter{secnumdepth}{0}
+\tableofcontents
+\newpage
+
+% End of PDF Automation Template
+
+
+
+
+\end{document}
