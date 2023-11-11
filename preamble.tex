@@ -1,7 +1,7 @@
 % LaTeX3, pdfLaTeX
-% Version: 2.2.5
+% Version: 2.3
 % Date: 2023-11-10
-
+% New command listpdfs
 
 
 % User configuration section
@@ -10,8 +10,13 @@
 \newcommand{\MyTitle}{}
 \newcommand{\MyAuthor}{}
 \newcommand{\MyDate}{}
+\newcommand{\FirstSectionName}{}
 
 % User variables
+\newcommand{\MaxInterludes}{20} % Define the maximum number of interludes
+\newcommand{\PDFList}{} % User-defined list of PDFs, make sure there are no spaces between the commas and each filename ends in .pdf
+
+
 
 
 % Define expandable commands for title, author, and date to use in headers/footers
@@ -29,10 +34,10 @@
 \usepackage{graphicx}
 \usepackage{scrlayer-scrpage}
 \usepackage{xcolor}
-%\usepackage{cancel}
-%\usepackage{booktabs} % For professional looking tables and \toprule, \midrule, \bottomrule
-%\usepackage{array} % For wrapping text in cells
-%\usepackage{longtable} % For multi-page tables
+\usepackage{cancel}
+\usepackage{booktabs} % For professional looking tables and \toprule, \midrule, \bottomrule
+\usepackage{array} % For wrapping text in cells
+\usepackage{longtable} % For multi-page tables
 \usepackage{listings} % For code formatting
 \usepackage{seqsplit} % Include the seqsplit package
 
@@ -71,8 +76,8 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb} % for \mathbb and \nmid
-%\usepackage{mathrsfs}
-%\usepackage{mathtools} % for \prescript
+\usepackage{mathrsfs}
+\usepackage{mathtools} % for \prescript
 
 % List support
 \usepackage{enumitem}
@@ -100,12 +105,6 @@
 % LaTeX3 programming and syntax
 \ExplSyntaxOn
 
-% User-specified variables and sequences
-\int_new:N \g_max_interludes_int
-\int_gset:Nn \g_max_interludes_int {5}
-\seq_new:N \g_pdf_files_seq
-\seq_gset_from_clist:Nn \g_pdf_files_seq {3.1_Counting.pdf}
-
 % Internal counters, properties, and tokens
 \newcounter{currentslide}
 \newcounter{totalpdfpages}
@@ -115,18 +114,19 @@
 \tl_new:N \l_slideinterlude_content_tl
 \tl_new:N \l_slideannotate_content_tl
 \prop_new:N \g_suppressed_slides_prop % Property to store suppressed slides
+\int_new:N \g_max_interludes_int
+\int_gset:Nn \g_max_interludes_int {\MaxInterludes} % Use the user-defined value
 \seq_new:N \g_pdf_pages_seq % Creates a global sequence to hold items which store the number of pages of different PDF documents included in the LaTeX document
+\seq_new:N \g_pdf_files_seq
 
 
-% Auto-detection and handling for different languages based on file extension
-\NewDocumentCommand{\includecode}{ O{} m }{
-  \lstinputlisting[
-    breaklines=true,
-    frame=single,
-    captionpos=b,
-    #1
-  ]{#2}
-}
+% Populate the sequence with the user-defined list of PDFs
+\clist_map_inline:Nn \PDFList
+ {
+  \seq_gput_right:Nn \g_pdf_files_seq { \tl_to_str:n {#1} }
+ }
+
+
 
 % Auto-detection of the number of pages in PDFs
 \cs_new:Nn \__get_pdf_pages:n
@@ -138,6 +138,26 @@
 {
   \__get_pdf_pages:n {#1}
 }
+
+% Auto-detection and handling for different languages based on file extension
+\NewDocumentCommand{\includecode}{ O{} m }{
+  \lstinputlisting[
+    breaklines=true,
+    frame=single,
+    captionpos=b,
+    #1
+  ]{#2}
+}
+
+% Lists all of the PDFs and their index number
+\NewDocumentCommand{\listpdfs}{}
+ {
+  \seq_indexed_map_inline:Nn \g_pdf_files_seq
+   {
+    \noindent
+    Index:~##1,~~File Name:~\textit{##2} \par
+   }
+ }
 
 % Define a new command to include graphics with filename label
 \NewDocumentCommand{\labelgraphics}{O{} m}
@@ -280,6 +300,8 @@
 \setcounter{secnumdepth}{0}
 \tableofcontents
 \newpage
+
+\section{\FirstSectionName}
 
 % End of PDF Automation Template
 
