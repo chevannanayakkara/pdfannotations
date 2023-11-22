@@ -1,8 +1,8 @@
 README FOR pdfannotations PACKAGE
 =================================
 
-Version: 3.0
-Date: 2023-11-21
+Version: 3.1
+Date: 2023-11-22
 
 Overview
 --------
@@ -45,13 +45,29 @@ The pdfannotations package includes the following commands and environments:
 7. \listpdfs:
    - Lists all PDFs and their index numbers as specified in the user configuration.
 
-3.0 Features:
-- Improved error trapping and messages across all commands and functions for empty or malformed PDF List.
-- Added debug log information, search for "PDFAnnotations" for detailed information.
+
 
 User Configuration
 ------------------
 Customize document metadata and settings by modifying the variables in the user configuration section at the top of the package code.
+
+Here are the descriptions for each part of the user configuration section of your script:
+
+- `\newcommand{\MyTitle}{...}`: This command defines the title of your document. 
+
+- `\newcommand{\MyAuthor}{...}`: This command sets the author's name for the document. 
+
+- `\newcommand{\MyDate}{...}`: This command defines the date associated with the document. 
+
+- `\newcommand{\FirstSectionName}{...}`: This command sets the name of the first section or chapter in your document. 
+
+- `\newcommand{\PDFMaxWidth}{0.80\textwidth}`: This command specifies the maximum width for included PDF pages as a percentage of the text width of the document. Here, it's set to 80% of the text width. This ensures that included PDFs are scaled appropriately to fit within this width.
+
+- `\newcommand{\MaxInterludes}{20}`: This command sets the maximum number of interludes (breaks or separate sections) allowed in the document. The value `20` can be adjusted based on the number of interludes you plan to include.
+
+- `\newcommand{\PDFList}{"Career.pdf"}`: This command creates a list of PDF files to be used in the document. It's currently set to include only one file, "Career.pdf." This list can be modified to include multiple PDFs by separating the filenames with commas within the curly braces.
+
+These commands provide a customizable framework for your document, allowing you to easily adjust key elements like the title, author, date, and specific document settings.
 
 System Requirements
 -------------------
@@ -118,6 +134,10 @@ Note: This README complements the full documentation available on GitHub.
 
 Changelog
 ---------
+
+Version 3.1 (2023-11-22):
+- Introduced `PDFMaxWidth` for dynamic scaling of included PDF documents.
+
 Version 3.0 (2023-11-21):
 - Improved error trapping and messages for empty or malformed PDF List.
 - Provided verbose messages in the document for out of bounds indexes for \annotatepdf and \listpdfs
