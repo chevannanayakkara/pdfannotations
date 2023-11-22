@@ -1,12 +1,12 @@
 README FOR pdfannotations PACKAGE
 =================================
 
-Version: 2.3
-Date: 2023-11-10
+Version: 3.0
+Date: 2023-11-21
 
 Overview
 --------
-pdfannotations is a LaTeX package designed for annotating PDF slides with LaTeX elements, adding interludes, and including code snippets. It offers a flexible way to enhance PDF presentation slides with additional LaTeX content. The package utilizes LaTeX3 syntax and requires the pdfLaTeX compiler.
+pdfannotations is a LaTeX package designed for annotating PDF slides with LaTeX elements, adding interludes, and including code snippets. In its latest version, the package has been enhanced with improved error handling and debug logging for more robust and informative user interaction. It offers a flexible way to enhance PDF presentation slides with additional LaTeX content. The package utilizes LaTeX3 syntax and requires the pdfLaTeX compiler.
 
 Features and Usage
 ------------------
@@ -45,15 +45,13 @@ The pdfannotations package includes the following commands and environments:
 7. \listpdfs:
    - Lists all PDFs and their index numbers as specified in the user configuration.
 
+3.0 Features:
+- Improved error trapping and messages across all commands and functions for empty or malformed PDF List.
+- Added debug log information, search for "PDFAnnotations" for detailed information.
+
 User Configuration
 ------------------
 Customize document metadata and settings by modifying the variables in the user configuration section at the top of the package code.
-
-Known Limitations
------------------
-- {slideannotate} environment does not span multiple pages.
-- {verbatim} and {lstlisting} not supported within {slideannotate}.
-- {verbatim} usable within {slideinterlude} for short code snippets.
 
 System Requirements
 -------------------
@@ -62,13 +60,31 @@ System Requirements
 
 Successfully Tested With Packages
 ---------------------------------
-- {mathtools}
-- {cancel}
-- {booktabs}
-- {array}
-- {longtable}
-- {mathrsfs}
-- {mathtools}
+{mathtools} - Enhances the presentation and formatting of mathematical content in documents. Provides various tools and utilities that extend the capabilities of amsmath.
+
+{cancel} - Allows for the placement of simple cancellation lines through parts of mathematics formulas. Useful for demonstrating the process of simplifying expressions.
+
+{booktabs} - Provides additional commands to enhance the quality of tables in LaTeX documents. Known for enabling the creation of more professional-looking tables without vertical separators.
+
+{array} - Extends the options for column formats within tables, offering greater flexibility and control over the layout and presentation of table content.
+
+{longtable} - Facilitates the creation of tables that continue over multiple pages. This package is essential for handling large tables that do not fit on a single page.
+
+{mathrsfs} - Offers access to the mathematical script font for use in LaTeX documents. Ideal for typesetting script-style mathematical expressions.
+
+{mathtools} (listed twice, so the same description applies) - Enhances the presentation and formatting of mathematical content in documents.
+
+{scrlayer-scrpage} - Provides user-friendly interfaces for creating and managing headers and footers in documents. It's a component of the KOMA-Script bundle.
+
+{xcolor} - Allows for easy driver-independent use of color in LaTeX documents. It supports various color models and offers a range of utilities for color manipulation.
+
+{listings} - Used for formatting source code listings with syntax highlighting. Supports a wide range of programming languages and offers customization options.
+
+{seqsplit} - Useful for splitting long sequences of characters, typically in situations where long strings need to be broken down to fit into the layout without overflowing the margins.
+
+{enumitem} - Provides control over the layout of itemize, enumerate, and description environments. It allows for easy customization of labels and spacing in lists.
+
+{adjustbox} - Offers an environment and macros to adjust general content (boxes). Particularly useful for scaling, resizing, trimming, or constraining content dimensions such as images or tables.
 
 Minimal Example
 ---------------
@@ -102,6 +118,15 @@ Note: This README complements the full documentation available on GitHub.
 
 Changelog
 ---------
+Version 3.0 (2023-11-21):
+- Improved error trapping and messages for empty or malformed PDF List.
+- Provided verbose messages in the document for out of bounds indexes for \annotatepdf and \listpdfs
+- Added detailed debug log information, search for "PDFAnnotations"
+
+
+Version 2.4.1 (2023-11-15):
+- Added new command \listpdfs that shows all PDFs and their index number for use with the \annotatepdf command.
+
 Version 2.3 (2023-11-10):
 - Brought all user-specified variables to the top of the preamble for easier customization.
 - Added \listpdfs command to list all PDFs and their index numbers.
@@ -112,8 +137,6 @@ Version 2.2.3 (2023-11-08):
 
 Version 2.2.2 (2023-11-07):
 - Removed the changelog from the code to be included in the README file instead.
-
-Previous updates:
 
 Version 2.2.1 (2023-11-06):
 - Modified when \clearpage is invoked to make slide transitions more natural.
@@ -153,5 +176,3 @@ Version 1.6:
 
 Version 1.5:
 - Converted \begin{slideannotate} command to slideannotate environment.
-
-End of README.
