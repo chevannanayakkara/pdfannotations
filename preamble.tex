@@ -1,6 +1,6 @@
 % LaTeX3, pdfLaTeX
-% Version: 3.0
-% Date: 2023-11-21
+% Version: 3.1
+% Date: 2023-11-22
 
 
 
@@ -13,13 +13,25 @@
 \newcommand{\FirstSectionName}{Lecture Notes: Topic 3 Counting}
 
 % User variables
-\newcommand{\MaxInterludes}{20} % Define the maximum number of interludes
+\newcommand{\PDFMaxWidth}{0.80\textwidth} 
+\newcommand{\MaxInterludes}{20} 
 \newcommand{\PDFList}{"Career.pdf"}
-% PDFAnnotate: User-defined list of PDFs
-% PDFAnnotate: Ensure there are no spaces between the commas and each filename
-% PDFAnnotate: Ensure each filename ends in .pdf
-% PDFAnnotate: An empty string {""} is not supported and the document will not compile
-% PDFAnnotate: No string is supported {}
+
+% Variable Documentation:
+% PDFMaxWidth: a user-configurable command in LaTeX that sets a global 
+% PDFMaxWidth: maximum width for included PDF documents, ensuring they are scaled 
+% PDFMaxWidth: appropriately to fit within the specified width of the text area. 
+% PDFMaxWidth: This command is particularly useful for consistently resizing 
+% PDFMaxWidth: larger PDF pages to maintain a uniform and visually appealing
+% PDFMaxWidth: layout in the document.
+
+% MaxInterludes: Define the maximum number of interludes
+
+% PDFList: User-defined list of PDFs
+% PDFList: Ensure there are no spaces between the commas and each filename
+% PDFList: Ensure each filename ends in .pdf
+% PDFList: An empty string {""} is not supported and the document will not compile
+% PDFList: No string is supported {}
 
 
 
@@ -123,6 +135,8 @@
 \int_gset:Nn \g_max_interludes_int {\MaxInterludes} % Use the user-defined value
 \seq_new:N \g_pdf_pages_seq % Creates a global sequence to hold items which store the number of pages of different PDF documents included in the LaTeX document
 \seq_new:N \g_pdf_files_seq
+\fp_new:N \g_pdf_max_width_fp
+\fp_gset:Nn \g_pdf_max_width_fp { \dim_to_fp:n {\PDFMaxWidth} }
 
 
 % Helper function to log each item in a sequence
@@ -264,11 +278,12 @@
       \seq_if_empty:NF \g_pdf_pages_seq
         {
           \begin{center}
-            \includegraphics[page=#1, width=\textwidth]{#2}
+            \includegraphics[page=#1, width=\fp_to_dim:N \g_pdf_max_width_fp, keepaspectratio]{#2}
           \end{center}
         }
     }
 }
+
 
 \cs_new_protected:Nn \__render_interlude:nn
 {
@@ -505,7 +520,3 @@
 
 \end{document}
 
-
-
-
-\end{document}
