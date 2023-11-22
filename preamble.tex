@@ -1,21 +1,25 @@
 % LaTeX3, pdfLaTeX
-% Version: 2.3
-% Date: 2023-11-10
-% New command listpdfs
+% Version: 3.0
+% Date: 2023-11-21
+
 
 
 % User configuration section
 % --------------------------
 % Document metadata
-\newcommand{\MyTitle}{}
-\newcommand{\MyAuthor}{}
-\newcommand{\MyDate}{}
-\newcommand{\FirstSectionName}{}
+\newcommand{\MyTitle}{UCSanDiegoX Probability and Statistics in Data Science using Python: Topic 3: Counting}
+\newcommand{\MyAuthor}{Chevan Nanayakkara}
+\newcommand{\MyDate}{November 2023}
+\newcommand{\FirstSectionName}{Lecture Notes: Topic 3 Counting}
 
 % User variables
 \newcommand{\MaxInterludes}{20} % Define the maximum number of interludes
-\newcommand{\PDFList}{} % User-defined list of PDFs, make sure there are no spaces between the commas and each filename ends in .pdf
-
+\newcommand{\PDFList}{"Career.pdf"}
+% PDFAnnotate: User-defined list of PDFs
+% PDFAnnotate: Ensure there are no spaces between the commas and each filename
+% PDFAnnotate: Ensure each filename ends in .pdf
+% PDFAnnotate: An empty string {""} is not supported and the document will not compile
+% PDFAnnotate: No string is supported {}
 
 
 
@@ -108,6 +112,7 @@
 % Internal counters, properties, and tokens
 \newcounter{currentslide}
 \newcounter{totalpdfpages}
+\newcounter{currentpdfindex} % We need a new counter for the current PDF index
 \newcommand{\currentpdfname}{}
 \prop_new:N \g_slide_annotations_prop
 \prop_new:N \g_interludes_prop
@@ -120,24 +125,74 @@
 \seq_new:N \g_pdf_files_seq
 
 
+% Helper function to log each item in a sequence
+\cs_new_protected:Nn \__log_seq_contents:n
+{
+  \seq_map_inline:Nn #1
+    {
+      \iow_log:n { PDFAnnotations:~--~\tl_to_str:n {#1} }
+    }
+}
+
 % Populate the sequence with the user-defined list of PDFs
-\clist_map_inline:Nn \PDFList
+\clist_if_empty:NTF \PDFList
  {
-  \seq_gput_right:Nn \g_pdf_files_seq { \tl_to_str:n {#1} }
+  % Case when \PDFList is genuinely empty
+  \iow_log:n { PDFAnnotations:~\PDFList~is~genuinely~empty. }
+  \seq_clear:N \g_pdf_files_seq
+  \seq_clear:N \g_pdf_pages_seq
+ }
+ {
+  \iow_log:n { PDFAnnotations:~\PDFList~contains~items,~processing. }
+  \clist_map_inline:Nn \PDFList
+   {
+    % Trim spaces and detokenize each item before adding
+    \tl_set:Nn \l_tmpa_tl {#1}
+    \tl_trim_spaces:N \l_tmpa_tl
+    % Add non-empty items to the sequence
+    \tl_if_empty:NF \l_tmpa_tl
+     {
+      \seq_gput_right:Nx \g_pdf_files_seq {\exp_args:No \detokenize \l_tmpa_tl}
+      \iow_log:n { PDFAnnotations:~added~file:~\tl_to_str:n {\l_tmpa_tl} }
+     }
+   }
+  \iow_log:n { PDFAnnotations:~\g_pdf_files_seq~final~contents: }
+  \__log_seq_contents:n \g_pdf_files_seq
  }
 
-
-
 % Auto-detection of the number of pages in PDFs
-\cs_new:Nn \__get_pdf_pages:n
+\cs_new_protected:Nn \__get_pdf_pages:n
 {
-  \pdfximage{#1}
+  \iow_log:n { PDFAnnotations:~getting~page~count~for~file:~#1 }
+  \exp_args:Nx \pdfximage {#1}
   \seq_gput_right:Nx \g_pdf_pages_seq {\the\pdflastximagepages}
+  \iow_log:n { PDFAnnotations:~file~#1~has~\the\pdflastximagepages~pages. }
 }
+
+% Process each file in the sequence
 \seq_map_inline:Nn \g_pdf_files_seq
 {
+  \iow_log:n { PDFAnnotations:~processing~file:~#1 }
   \__get_pdf_pages:n {#1}
+  \iow_log:n { PDFAnnotations:~processed~file:~#1 }
 }
+
+\iow_log:n { PDFAnnotations:~\g_pdf_files_seq~final~contents: }
+\__log_seq_contents:n \g_pdf_files_seq
+
+\iow_log:n { PDFAnnotations:~\g_pdf_pages_seq~final~contents: }
+\__log_seq_contents:n \g_pdf_pages_seq
+
+
+
+
+
+% In case the sequence is empty, log this information
+\seq_if_empty:NT \g_pdf_files_seq
+ {
+  \iow_log:n { PDFAnnotations:~\g_pdf_files_seq~is~empty,~skipping~processing. }
+ }
+
 
 % Auto-detection and handling for different languages based on file extension
 \NewDocumentCommand{\includecode}{ O{} m }{
@@ -149,15 +204,28 @@
   ]{#2}
 }
 
-% Lists all of the PDFs and their index number
+% Lists all of the PDFs, their index number, and the number of pages
 \NewDocumentCommand{\listpdfs}{}
- {
-  \seq_indexed_map_inline:Nn \g_pdf_files_seq
-   {
-    \noindent
-    Index:~##1,~~File Name:~\textit{##2} \par
-   }
- }
+{
+  \seq_if_empty:NF \g_pdf_files_seq
+    {
+      \seq_indexed_map_inline:Nn \g_pdf_files_seq
+        {
+          % Use the index of the sequence for the PDF index
+          \int_set:Nn \l_tmpa_int { \seq_item:Nn \g_pdf_pages_seq {##1} }
+          \noindent
+          Index:~##1,~~File Name:~\texttt{\detokenize{##2}},~~Pages:~\int_use:N \l_tmpa_int \par
+        }
+    }
+  \seq_if_empty:NT \g_pdf_files_seq
+    {
+      % Log the message only, no output to the document
+      \iow_log:n { PDFAnnotations:~No~PDF~files~to~list. }
+    }
+}
+
+
+
 
 % Define a new command to include graphics with filename label
 \NewDocumentCommand{\labelgraphics}{O{} m}
@@ -179,12 +247,6 @@
   \renewcommand{\currentpdfname}{#1}
 }
 
-\NewDocumentEnvironment{slideannotate}{m +b}
- {
-  \tl_set:Nn \l_slideannotate_content_tl {#2}
-  \prop_gput:NnV \g_slide_annotations_prop {#1} \l_slideannotate_content_tl
- }
- {}
 
 \NewDocumentEnvironment{slideinterlude}{m +b}
  {
@@ -194,33 +256,18 @@
  {}
 
 
-\cs_new_protected:Nn \__render_slide:nn
-{
-  \__include_pdf:nn {#1} {\currentpdfname}
-  \__render_annotation:nn {#1} {#2}
-}
-
-% We need a new counter for the current PDF index
-\newcounter{currentpdfindex}
-
-\cs_new_protected:Nn \__render_annotation:nn
-{
-  \begin{center}
-    \begin{minipage}{\textwidth}
-      \large
-      \textbf{Annotation~for~\textcolor{red}{Slide~#1}~of~\arabic{totalpdfpages}~of~\arabic{currentpdfindex}:} % Modified here
-      \textit{\currentpdfname}
-      \prop_item:Nn \g_slide_annotations_prop {#2-#1}
-    \end{minipage}
-    \clearpage  % Clear the page after the interlude content
-  \end{center}
-}
 
 \cs_new_protected:Nn \__include_pdf:nn
 {
-  \begin{center}
-    \includegraphics[page=#1, width=\textwidth]{#2}
-  \end{center}
+  \seq_if_empty:NF \g_pdf_files_seq
+    {
+      \seq_if_empty:NF \g_pdf_pages_seq
+        {
+          \begin{center}
+            \includegraphics[page=#1, width=\textwidth]{#2}
+          \end{center}
+        }
+    }
 }
 
 \cs_new_protected:Nn \__render_interlude:nn
@@ -239,49 +286,184 @@
 }
 
 
+
+\cs_new_protected:Nn \__process_interludes:nn
+{
+  \seq_if_empty:NF \g_pdf_files_seq
+    {
+      % Only process interludes if there are PDFs in the sequence
+      \int_step_inline:nn {\g_max_interludes_int}
+      {
+        \__render_interlude:nn {#1-##1} {#2}
+      }
+    }
+  \seq_if_empty:NT \g_pdf_files_seq
+    {
+      % Optionally log a message or take other actions if the sequence is empty
+      \iow_log:n {PDFAnnotations:~No~PDF~files~available~for~processing~interludes.}
+    }
+}
+
+
+
 \NewDocumentCommand{\suppressslide}{m}
 {
   \prop_gput:Nnn \g_suppressed_slides_prop {#1} {suppressed}
 }
 
+
+\NewDocumentEnvironment{slideannotate}{m +b}
+ {
+  \seq_if_empty:NF \g_pdf_files_seq % Check if the PDF list is not empty
+    {
+      % Only execute if there are PDFs in the list
+      \tl_set:Nn \l_slideannotate_content_tl {#2}
+      \prop_gput:NnV \g_slide_annotations_prop {#1} \l_slideannotate_content_tl
+    }
+  % Optionally, you can log a message if the list is empty
+  \seq_if_empty:NT \g_pdf_files_seq
+    {
+      \iow_log:n {PDFAnnotations:~No~PDF~files~to~annotate.}
+    }
+ }
+ {}
+
+
+\cs_new_protected:Nn \__render_annotation:nn
+{
+  \seq_if_empty:NF \g_pdf_files_seq
+    {
+      % Check if the page sequence is also not empty before rendering
+      \seq_if_empty:NF \g_pdf_pages_seq
+        {
+          % Expand the file name into a token list
+          \tl_set:Nx \l_tmpa_tl {\currentpdfname}
+          
+          % Debug output before detokenize
+          \iow_log:n {PDFAnnotations:~Before~detokenize:~\l_tmpa_tl}
+
+          \begin{center}
+            \begin{minipage}{\textwidth}
+              \large
+              \textbf{Annotation~for~\textcolor{red}{Slide~#1}~of~\arabic{totalpdfpages}~of~\arabic{currentpdfindex}:}
+              \textit{\detokenize\expandafter{\l_tmpa_tl}}
+              \prop_item:Nn \g_slide_annotations_prop {#2-#1}
+            \end{minipage}
+            \clearpage  % Clear the page after the interlude content
+          \end{center}
+          
+          % Debug output after detokenize
+          \iow_log:n {PDFAnnotations:~After~detokenize:~\detokenize\expandafter{\l_tmpa_tl}}
+        }
+    }
+}
+
+
+
+
+
 \NewDocumentCommand{\annotatepdf}{m}
 {
-  \setcounter{currentpdfindex}{#1} % Set the current PDF index
-  \setcounter{totalpdfpages}{\seq_item:Nn \g_pdf_pages_seq {#1}}
-  \setcurrentpdfname{\seq_item:Nn \g_pdf_files_seq {#1}}
-
-  \int_step_inline:nn {\seq_item:Nn \g_pdf_pages_seq {#1}}
-  {
-    \prop_if_in:NnF \g_suppressed_slides_prop {#1-##1} % Check if slide is not suppressed
+  \seq_if_empty:NF \g_pdf_files_seq
     {
-%      \clearpage % Ensure the inserted PDF starts on a fresh page
-      \setcounter{currentslide}{##1}
-      \__render_slide:nn {##1} {#1}
-      \thispagestyle{scrheadings}
+      \int_compare:nNnTF {#1} > { \seq_count:N \g_pdf_files_seq }
+        {
+          % Log error and display message in the document for out-of-bounds index
+          \iow_log:n {PDFAnnotations: Error - PDF index #1 is out of bounds.}
+          \textbf{Error:}~PDF~index~#1~is~out~of~bounds. \par
+        }
+        {
+          % Process normally if index is within bounds
+          \__annotatepdf_process:n {#1}
+        }
+    }
+  \seq_if_empty:NT \g_pdf_files_seq
+    {
+      % Log error and display message in the document for empty PDF list
+      \iow_log:n {PDFAnnotations: Error - No PDF files to process.}
+      \textbf{Error:}~No~PDF~files~to~process. \par
+    }
+}
 
-      % Check for interludes
-      \prop_if_in:NnT \g_interludes_prop {#1-##1}
+
+\cs_new_protected:Nn \__annotatepdf_empty:
+{
+  \iow_log:n {PDFAnnotations: No PDF files to process.} % Debug message
+}
+
+\cs_new_protected:Nn \__annotatepdf_process:n
+{
+  \exp_args:Nx \iow_log:n {PDFAnnotations: Processing PDF file at index #1.} % Debug message
+  \setcounter{currentpdfindex}{#1} % Set the current PDF index
+
+  % Check if the index is within the range of the sequence
+  \int_compare:nNnTF {#1} > { \seq_count:N \g_pdf_files_seq }
+    {
+      % Log a message if the index is out of bounds
+      \iow_log:n {PDFAnnotations: Error - PDF index #1 is out of bounds.}
+      % Output a message in the document
+      \textbf{Error:}~PDF~index~#1~is~out~of~bounds. \par
+    }
+    {
+      % Proceed if the index is within bounds
+      \setcounter{totalpdfpages}{\seq_item:Nn \g_pdf_pages_seq {#1}}
+      \setcurrentpdfname{\seq_item:Nn \g_pdf_files_seq {#1}}
+
+      \int_step_inline:nn {\seq_item:Nn \g_pdf_pages_seq {#1}}
       {
-        \__render_interlude:nn {#1} {##1}
+        \prop_if_in:NnF \g_suppressed_slides_prop {#1-##1} % Check if slide is not suppressed
+        {
+          \setcounter{currentslide}{##1}
+          \__render_slide:nn {##1} {#1}
+          \thispagestyle{scrheadings}
+
+          % Check for interludes
+          \prop_if_in:NnT \g_interludes_prop {#1-##1}
+          {
+            \__render_interlude:nn {#1} {##1}
+          }
+        }
+        \iow_log:n {PDFAnnotations: Processed slide ##1 for PDF index #1.} % Debug message
       }
     }
-  }
+  \exp_args:Nx \iow_log:n {PDFAnnotations: Completed processing PDF file at index #1.} % Debug message
 }
+
+
+
 
 
 \cs_new_protected:Nn \__set_total_pages_and_pdf_name:n
 {
-  \setcounter{totalpdfpages}{\seq_item:Nn \g_pdf_pages_seq {#1}}
-  \setcurrentpdfname{\seq_item:Nn \g_pdf_files_seq {#1}}
+  \seq_if_empty:NF \g_pdf_files_seq
+    {
+      \setcounter{totalpdfpages}{\seq_item:Nn \g_pdf_pages_seq {#1}}
+      \setcurrentpdfname{\seq_item:Nn \g_pdf_files_seq {#1}}
+    }
+  \seq_if_empty:NT \g_pdf_files_seq
+    {
+      \setcounter{totalpdfpages}{0}
+      \renewcommand{\currentpdfname}{}
+    }
 }
 
-\cs_new_protected:Nn \__process_interludes:nn
+
+
+
+
+\cs_new_protected:Nn \__render_slide:nn
 {
-  \int_step_inline:nn {\g_max_interludes_int}
-  {
-    \__render_interlude:nn {#1-##1} {#2}
-  }
+  \seq_if_empty:NF \g_pdf_files_seq
+    {
+      % Check if the page sequence is also not empty before rendering
+      \seq_if_empty:NF \g_pdf_pages_seq
+        {
+          \__include_pdf:nn {#1} {\currentpdfname}
+          \__render_annotation:nn {#1} {#2}
+        }
+    }
 }
+
 
 \ExplSyntaxOff
 
@@ -291,19 +473,37 @@
 
 \begin{document}
 
+\maketitle
+
 \renewcommand{\labelitemii}{$\square$} % Changes second-level bullet to a square
 \renewcommand{\labelitemiii}{$\ast$}  % Changes third-level bullet to an asterisk
 
 \pagestyle{empty}
 
-\maketitle
+
 \setcounter{secnumdepth}{0}
 \tableofcontents
 \newpage
 
+\section{List of PDFs}
+
+\listpdfs
+
+\newpage
+
 \section{\FirstSectionName}
 
-% End of PDF Automation Template
+% Beginning of document content
+
+\annotatepdf{1}
+
+\annotatepdf{2}
+
+% End of document content
+
+\section{End}
+
+\end{document}
 
 
 
